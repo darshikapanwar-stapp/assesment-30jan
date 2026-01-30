@@ -1,21 +1,25 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { searchMovies, getMovieDetails } from "../../services/api";
 
-// TODO: Create async thunk for fetching movies
+/**
+ * Fetch movies based on search + filters + page
+ */
 export const fetchMovies = createAsyncThunk(
   "movies/fetchMovies",
   async ({ searchTerm, page, type, year }) => {
-    // TODO: Call searchMovies API
-    // Return data
+    const data = await searchMovies(searchTerm, page, type, year);
+    return data;
   },
 );
 
-// TODO: Create async thunk for fetching movie details
+/**
+ * Fetch single movie details by imdbID
+ */
 export const fetchMovieDetails = createAsyncThunk(
   "movies/fetchMovieDetails",
   async (imdbID) => {
-    // TODO: Call getMovieDetails API
-    // Return data
+    const data = await getMovieDetails(imdbID);
+    return data;
   },
 );
 
@@ -31,15 +35,44 @@ const moviesSlice = createSlice({
   },
   reducers: {
     clearSearch: (state) => {
-      // TODO: Clear search results
+      state.searchResults = [];
+      state.totalResults = 0;
+      state.currentPage = 1;
+      state.error = null;
     },
     setCurrentPage: (state, action) => {
-      // TODO: Update current page
+      state.currentPage = action.payload;
     },
   },
   extraReducers: (builder) => {
-    // TODO: Handle fetchMovies pending/fulfilled/rejected
-    // TODO: Handle fetchMovieDetails pending/fulfilled/rejected
+    builder
+      // 🔄 Fetch movies
+      .addCase(fetchMovies.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMovies.fulfilled, (state, action) => {
+        state.loading = false;
+        state.searchResults = action.payload.Search || [];
+        state.totalResults = Number(action.payload.totalResults) || 0;
+      })
+      .addCase(fetchMovies.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // 🎬 Fetch movie details
+      .addCase(fetchMovieDetails.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchMovieDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.movieDetails[action.payload.imdbID] = action.payload;
+      })
+      .addCase(fetchMovieDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
   },
 });
 
