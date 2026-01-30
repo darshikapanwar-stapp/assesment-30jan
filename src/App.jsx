@@ -10,7 +10,7 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
 import MovieDetails from "./pages/MovieDetails";
-import Watchlist from "./pages/Watchlist";
+import Watchlist from "./pages/WatchList";
 import Favorites from "./pages/Favouristes";
 import NotFound from "./pages/NotFound";
 
